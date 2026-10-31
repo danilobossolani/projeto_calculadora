@@ -7,21 +7,15 @@ package calculadora;
  * finanças pessoais. Será usado em funcionalidades como orçamento mensal,
  * divisão de despesas e projeção de economia.</p>
  *
- * <p>Esta é a <strong>versão inicial</strong> da classe, antes da
- * refatoração. Todas as operações ficam concentradas no método
- * {@link #calc(int, int, String)}.</p>
- *
  * @author Danilo Bossolani
- * @version 1.0
+ * @version 1.1
  */
 public class Calculadora {
 
     /**
      * Resultado da última operação executada.
-     * Começa em {@code 0} e é atualizado a cada chamada de
-     * {@link #calc(int, int, String)}.
      */
-    public int r = 0;
+    private int ultimoResultado = 0;
 
     /**
      * Cria uma calculadora com o resultado inicial igual a zero.
@@ -30,19 +24,55 @@ public class Calculadora {
     }
 
     /**
-     * Executa a operação matemática indicada pelo operador.
+     * Soma dois números inteiros.
      *
-     * <p>Operadores aceitos:</p>
-     * <ul>
-     *     <li>{@code "+"}: soma</li>
-     *     <li>{@code "-"}: subtração</li>
-     *     <li>{@code "*"}: multiplicação</li>
-     *     <li>{@code "/"}: divisão inteira</li>
-     * </ul>
+     * @param a primeiro operando
+     * @param b segundo operando
+     * @return a soma de {@code a} e {@code b}
+     */
+    public int somar(int a, int b) {
+        return a + b;
+    }
+
+    /**
+     * Subtrai o segundo número do primeiro.
      *
-     * <p>Em caso de divisão por zero ou operador inválido, uma mensagem de
-     * erro é exibida no console e o método retorna {@code 0}, sem
-     * interromper a execução do programa.</p>
+     * @param a primeiro operando
+     * @param b segundo operando
+     * @return a diferença entre {@code a} e {@code b}
+     */
+    public int subtrair(int a, int b) {
+        return a - b;
+    }
+
+    /**
+     * Multiplica dois números inteiros.
+     *
+     * @param a primeiro operando
+     * @param b segundo operando
+     * @return o produto de {@code a} e {@code b}
+     */
+    public int multiplicar(int a, int b) {
+        return a * b;
+    }
+
+    /**
+     * Divide o primeiro número pelo segundo.
+     *
+     * @param a dividendo
+     * @param b divisor
+     * @return o quociente de {@code a} por {@code b}, ou {@code 0} se {@code b} for zero
+     */
+    public int dividir(int a, int b) {
+        if (b == 0) {
+            System.out.println("Erro: divisão por zero não é permitida.");
+            return 0;
+        }
+        return a / b;
+    }
+
+    /**
+     * Executa a operação indicada pelo operador.
      *
      * @param a  primeiro operando
      * @param b  segundo operando
@@ -50,29 +80,20 @@ public class Calculadora {
      * @return o resultado da operação, ou {@code 0} em caso de erro
      */
     public int calc(int a, int b, String op) {
-
-        // "+".equals(op) evita NullPointerException caso op seja null
         if ("+".equals(op)) {
-            r = a + b;
+            ultimoResultado = somar(a, b);
         } else if ("-".equals(op)) {
-            r = a - b;
+            ultimoResultado = subtrair(a, b);
         } else if ("*".equals(op)) {
-            r = a * b;
+            ultimoResultado = multiplicar(a, b);
         } else if ("/".equals(op)) {
-            // Divisão só é feita quando o divisor é diferente de zero
-            if (b != 0) {
-                r = a / b;
-            } else {
-                System.out.println("Erro: divisão por zero não é permitida.");
-                r = 0;
-            }
+            ultimoResultado = dividir(a, b);
         } else {
-            // Qualquer símbolo diferente dos quatro aceitos cai aqui
             System.out.println("Erro: operação inválida: " + op);
-            r = 0;
+            ultimoResultado = 0;
         }
 
-        System.out.println("Resultado = " + r);
-        return r;
+        System.out.println("Resultado = " + ultimoResultado);
+        return ultimoResultado;
     }
 }
