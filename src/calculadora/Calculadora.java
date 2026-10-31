@@ -7,14 +7,32 @@ package calculadora;
  * finanças pessoais. Será usado em funcionalidades como orçamento mensal,
  * divisão de despesas e projeção de economia.</p>
  *
+ * <p>Esta é a <strong>versão refatorada</strong> da classe. As mudanças em
+ * relação à versão inicial foram:</p>
+ * <ul>
+ *     <li>extração de um método para cada operação;</li>
+ *     <li>troca da cadeia de {@code if/else} por {@code switch};</li>
+ *     <li>uso de {@link IllegalArgumentException} para sinalizar erros;</li>
+ *     <li>nomes mais descritivos para atributos e parâmetros;</li>
+ *     <li>mensagens de erro centralizadas em constantes.</li>
+ * </ul>
+ *
+ * <p>O método {@link #calc(int, int, String)} foi mantido com o mesmo
+ * comportamento da versão inicial: em caso de erro ele exibe a mensagem e
+ * retorna {@code 0}, sem interromper o programa.</p>
+ *
  * @author Danilo Bossolani
- * @version 1.1
+ * @version 2.0
  */
 public class Calculadora {
 
-    /**
-     * Resultado da última operação executada.
-     */
+    /** Mensagem exibida quando há tentativa de divisão por zero. */
+    public static final String MSG_DIVISAO_POR_ZERO = "Erro: divisão por zero não é permitida.";
+
+    /** Prefixo da mensagem exibida quando o operador não é reconhecido. */
+    public static final String MSG_OPERACAO_INVALIDA = "Erro: operação inválida: ";
+
+    /** Resultado da última operação executada por {@link #calc(int, int, String)}. */
     private int ultimoResultado = 0;
 
     /**
@@ -57,22 +75,60 @@ public class Calculadora {
     }
 
     /**
-     * Divide o primeiro número pelo segundo.
+     * Divide o primeiro número pelo segundo (divisão inteira).
      *
-     * @param a dividendo
-     * @param b divisor
-     * @return o quociente de {@code a} por {@code b}, ou {@code 0} se {@code b} for zero
+     * @param dividendo número a ser dividido
+     * @param divisor   número pelo qual o dividendo será dividido
+     * @return o quociente da divisão
+     * @throws IllegalArgumentException se o divisor for zero
      */
-    public int dividir(int a, int b) {
-        if (b == 0) {
-            System.out.println("Erro: divisão por zero não é permitida.");
-            return 0;
+    public int dividir(int dividendo, int divisor) {
+        if (divisor == 0) {
+            throw new IllegalArgumentException(MSG_DIVISAO_POR_ZERO);
         }
-        return a / b;
+        return dividendo / divisor;
     }
 
     /**
-     * Executa a operação indicada pelo operador.
+     * <p>Executa a operação matemática solicitada com base no operador informado.</p>
+     *
+     * <p>Operadores aceitos:</p>
+     * <ul>
+     *     <li>{@code "+"}: soma</li>
+     *     <li>{@code "-"}: subtração</li>
+     *     <li>{@code "*"}: multiplicação</li>
+     *     <li>{@code "/"}: divisão</li>
+     * </ul>
+     *
+     * <p>Qualquer operador inválido resulta em exceção.</p>
+     *
+     * @param a        primeiro operando
+     * @param b        segundo operando
+     * @param operador símbolo da operação desejada
+     * @return o resultado da operação correspondente ao operador informado
+     * @throws IllegalArgumentException se o operador for inválido ou nulo,
+     *                                  ou se houver divisão por zero
+     */
+    public int calcular(int a, int b, String operador) {
+        // switch não aceita null, então o caso é tratado antes
+        if (operador == null) {
+            throw new IllegalArgumentException(MSG_OPERACAO_INVALIDA + operador);
+        }
+
+        return switch (operador) {
+            case "+" -> somar(a, b);
+            case "-" -> subtrair(a, b);
+            case "*" -> multiplicar(a, b);
+            case "/" -> dividir(a, b);
+            default -> throw new IllegalArgumentException(MSG_OPERACAO_INVALIDA + operador);
+        };
+    }
+
+    /**
+     * Executa a operação e exibe o resultado no console, sem lançar exceções.
+     *
+     * <p>Método principal exigido pela atividade. Mantém o comportamento da
+     * versão inicial: em caso de erro, exibe a mensagem e retorna {@code 0}.</p>
      *
      * @param a  primeiro operando
      * @param b  segundo operando
@@ -80,20 +136,24 @@ public class Calculadora {
      * @return o resultado da operação, ou {@code 0} em caso de erro
      */
     public int calc(int a, int b, String op) {
-        if ("+".equals(op)) {
-            ultimoResultado = somar(a, b);
-        } else if ("-".equals(op)) {
-            ultimoResultado = subtrair(a, b);
-        } else if ("*".equals(op)) {
-            ultimoResultado = multiplicar(a, b);
-        } else if ("/".equals(op)) {
-            ultimoResultado = dividir(a, b);
-        } else {
-            System.out.println("Erro: operação inválida: " + op);
+        try {
+            ultimoResultado = calcular(a, b, op);
+        } catch (IllegalArgumentException e) {
+            // O erro é exibido e tratado aqui para não interromper o programa
+            System.out.println(e.getMessage());
             ultimoResultado = 0;
         }
 
         System.out.println("Resultado = " + ultimoResultado);
+        return ultimoResultado;
+    }
+
+    /**
+     * Retorna o resultado da última operação feita por {@link #calc(int, int, String)}.
+     *
+     * @return o último resultado calculado
+     */
+    public int getUltimoResultado() {
         return ultimoResultado;
     }
 }
